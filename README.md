@@ -1,4 +1,4 @@
-# BayesianClassifiers_ProfessionCategories
+# Bayesian Classifiers to Infer Profession Categories Across Experiments
  Classification of subjects professions using Bayesian Random Forest and Bayesian Logistic Regression
 
 Goals: 

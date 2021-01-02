@@ -13,3 +13,8 @@ qualification score
 adjusted qualification score
 
 "
+
+library(dplyr)
+
+#Load consent data from E2
+source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E2.R")

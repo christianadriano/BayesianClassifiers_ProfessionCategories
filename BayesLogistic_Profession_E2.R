@@ -12,6 +12,13 @@ years of programming
 qualification score
 adjusted qualification score
 
+TODO: 
+1- simulate the priors
+2- plot the coefficients
+3- compute the prediction error
+4- compared models w.r.t. overfitting (LOOC and WAIC)
+5- compare these results with the xgboostTree
+
 "
 library(rethinking)
 library(dplyr)
@@ -27,7 +34,7 @@ df_consent[df_consent$profession_str=="Undergraduate_Student",]$is_student <- 1
 df_consent[df_consent$profession_str=="Graduate_Student",]$is_student <- 1
 
 #Move all adjusted score to positive scale
-df_consent$adjusted_score <- df_consent$adjusted_score+1
+df_consent$adjusted_score <- df_consent$adjusted_score + (-1*min(df_consent$adjusted_score)) + 1
 
 
 #Approximate posterior
@@ -35,9 +42,9 @@ m1 <- quap(
   alist(
   is_student ~ dbinom( 1 , p ) ,
   logit(p) <-  ba*age + by*years_programming+by + bq*qualification_score +bq,
-  ba ~ dnorm( 0 , 10 ),
-  by ~ dnorm( 0 , 10 ),
-  bq ~ dnorm( 0 , 10 )
+  ba ~ dnorm( 1 , 10 ),
+  by ~ dnorm( 1 , 10 ),
+  bq ~ dnorm( 1 , 10 )
 ) , data=df_consent )
 precis(m1)
 #     mean   sd  5.5% 94.5%
@@ -48,17 +55,17 @@ precis(m1)
 m2 <- quap(
   alist(
     is_student ~ dbinom( 1 , p ) ,
-    logit(p) <-  ba*age + by*years_programming + bq*adjusted_score,
-    ba ~ dnorm( 0 , 10 ),
-    by ~ dnorm( 0 , 10 ),
-    bq ~ dnorm( 1 , 2 ) #CHOOSE THIS PRIOR APPROPRIATELY
+    logit(p) <-  ba*age + by*years_programming + bq*adjusted_score +bq +1,
+    ba ~ dnorm( 10, 10 ),
+    by ~ dnorm( 1 , 10 ),
+    bq ~ dnorm( 1 , 10) #CHOOSE THIS PRIOR APPROPRIATELY
   ) , data=df_consent )
 precis(m2)
 
 #     mean   sd  5.5% 94.5%
-# ba -0.01 0.00 -0.01  0.00
-# by -0.13 0.01 -0.15 -0.11
-# bq  0.26 0.07  0.14  0.37
+# ba -0.02 0.00 -0.03 -0.02 OK
+# by -0.14 0.01 -0.15 -0.12 OK
+# bq  0.42 0.06  0.14  0.37 OK
 
 # m13.1 <- ulam(
 #   alist(

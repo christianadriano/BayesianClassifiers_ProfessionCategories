@@ -8,6 +8,7 @@ of the gradient boosting frame-work from Chen & Guestrin (2016) <doi:10.1145/293
 
 install.packages("xgboost")
 library(xgboost)
+library(dplyr)
 
 #------------------------------
 #PRE-PROCESSING
@@ -25,8 +26,66 @@ df_consent[df_consent$profession_str=="Graduate_Student",]$is_student <- 1
 #Move all adjusted score to positive scale
 df_consent$adjusted_score <- df_consent$adjusted_score + (-1*min(df_consent$adjusted_score)) + 0.1
 
+train.features <- df_consent %>% select(years_programming,age,qualification_score)
+train.label <- df_consent %>% select(is_student)
+
 #-----------------------------
 
-bst <- xgboost(data = agaricus.train$data, label = agaricus.train$label, 
-               max_depth = 2,eta = 1, nthread = 2, nrounds = 2, 
-               objective = "binary:logistic")
+runXGBoost <- function(train.features,train.label,rounds,depth){
+  bst <- xgboost(data = as.matrix(train.features), label = as.matrix(train.label),
+                 max_depth =depth,eta = 1, nthread = 2, 
+                 nrounds = rounds,eval_metric = list("rmse","auc"), 
+                 objective = "binary:logistic",verbose = 1);
+  
+  return (bst$evaluation_log[rounds-1][[2]])
+}
+
+runXGB_CrossValidation <- function(train.features,train.label,rounds){
+  dtrain <- xgb.DMatrix(data = as.matrix(train.features), label = as.matrix(train.label))
+  cv <- xgb.cv(data = dtrain, nrounds = rounds, nthread = 2, nfold = 5, metrics = list("rmse","auc"),
+               max_depth = 4, eta = 1, objective = "binary:logistic")
+  return(cv)
+}
+
+#-----------------------------
+
+#train-error:0.131432 
+
+train_error <- runXGBoost(
+  train.features = df_consent %>% select(years_programming),
+  train.label = train.label ,
+  rounds=1000,
+  depth=4)
+print(train_error)
+#[1] 0.35179
+
+cv_error <- runXGB_CrossValidation(
+  train.features = df_consent %>% select(years_programming),
+  train.label = train.label ,
+  rounds=1000)
+
+print(cv)
+print(cv, verbose=TRUE)
+
+#-------------------------------------------
+
+train_error <- runXGBoost(
+  train.features = df_consent %>% select(years_programming,age),
+  train.label = train.label ,
+  rounds=1000)
+print(train_error)
+#[1] 0.21085
+
+train_error <- runXGBoost(
+  train.features = df_consent %>% select(years_programming,age,qualification_score),
+  train.label = train.label ,
+  rounds=1000)
+print(train_error)
+#[1] 0.131432
+
+train_error <- runXGBoost(
+  train.features = df_consent %>% select(years_programming,age,adjusted_score),
+  train.label = train.label ,
+  rounds=1000)
+print(train_error)
+#[1] 0.0783

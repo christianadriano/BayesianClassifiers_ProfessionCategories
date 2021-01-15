@@ -4,6 +4,27 @@ XGBoostTree to predict professions (Student and Non-Student) for E2 participants
 Uses the Extreme Gradient Boosting, which is an efficient implementation 
 of the gradient boosting frame-work from Chen & Guestrin (2016) <doi:10.1145/2939672.2939785>
 
+Results:
+
+1- Training setup
+I reported both training and test error using 10-fold cross-validation. 
+To mitigate overfitting of the decision trees, I set hyperparameters accordingly, 
+for instance, depth=4 (intsead of standard 6), eta =0.3 (standard, lower the better),
+stopping criteria to half of the rounds.
+
+2- Feature selection
+I selected the following features available after right after the qualification test:
+years_programming, age, qualification_score, adjusted_score, test_duration
+
+3- Results (by feature combination and sorted in descending order of test error)
+
+age = 0.283
+age, years_programming = 0.2768
+age, years_programming,qualification_score = 0.2791
+age, years_programming,qualification_score,test_duration = 0.2645
+age, years_programming,adjusted_score,test_duration = 0.2629
+age, years_programming,adjusted_score,test_duration,testDuration_fastMembership = 0.226
+
 "
 
 install.packages("xgboost")
@@ -33,59 +54,82 @@ train.label <- df_consent %>% select(is_student)
 
 runXGBoost <- function(train.features,train.label,rounds,depth){
   bst <- xgboost(data = as.matrix(train.features), label = as.matrix(train.label),
-                 max_depth =depth,eta = 1, nthread = 2, 
-                 nrounds = rounds,eval_metric = list("rmse","auc"), 
+                 max_depth =depth,eta = 1, nthread = 4, 
+                 nrounds = rounds,eval_metric = list("error"), 
                  objective = "binary:logistic",verbose = 1);
   
   return (bst$evaluation_log[rounds-1][[2]])
 }
 
-runXGB_CrossValidation <- function(train.features,train.label,rounds){
-  dtrain <- xgb.DMatrix(data = as.matrix(train.features), label = as.matrix(train.label))
-  cv <- xgb.cv(data = dtrain, nrounds = rounds, nthread = 2, nfold = 5, metrics = list("rmse","auc"),
-               max_depth = 4, eta = 1, objective = "binary:logistic")
-  return(cv)
+runXGB_CrossValidation <- function(train.features,train.label){
+  dtrain <- xgb.DMatrix(data = as.matrix(train.features), 
+                        label = as.matrix(train.label));
+  cv <- xgb.cv(data = dtrain, 
+               nrounds = 1000, #larger rounds did not give better results
+               early_stopping_rounds=500, #stop after error did not change and pick the best iteration
+               nfold = 10, #best practice, smaller value, 5 fold gave similar results
+               metrics = list("error"), #standard for binary classification
+               max_depth = 4, #standard parameterization is 6, we reduced to 4 to reduce overfitting
+               eta = 0.3, #standard, the smaller, the less overfitting risk
+               objective = "binary:logistic",
+               verbose=FALSE
+               );
+  
+  print(paste0("train_error= ",round(cv$evaluation_log$train_error_mean[cv_error$best_iteration],digits=4)));
+  print(paste0("test_error= ",round(cv$evaluation_log$test_error_mean[cv_error$best_iteration],digits=4)));
+  
 }
 
-#-----------------------------
+#-------------------------------------------
+runXGB_CrossValidation(
+  train.features = df_consent %>% select(age),
+  train.label = train.label 
+)
 
-#train-error:0.131432 
-
-train_error <- runXGBoost(
-  train.features = df_consent %>% select(years_programming),
-  train.label = train.label ,
-  rounds=1000,
-  depth=4)
-print(train_error)
-#[1] 0.35179
-
-cv_error <- runXGB_CrossValidation(
-  train.features = df_consent %>% select(years_programming),
-  train.label = train.label ,
-  rounds=1000)
-
-print(cv)
-print(cv, verbose=TRUE)
+#[1] "train_error= 0.2786"
+#[1] "test_error= 0.283"
 
 #-------------------------------------------
+runXGB_CrossValidation(
+  train.features = df_consent %>% select(age,years_programming),
+  train.label = train.label 
+)
 
-train_error <- runXGBoost(
-  train.features = df_consent %>% select(years_programming,age),
-  train.label = train.label ,
-  rounds=1000)
-print(train_error)
-#[1] 0.21085
+#[1] "train_error= 0.2547"
+#[1] "test_error= 0.2768"
 
-train_error <- runXGBoost(
-  train.features = df_consent %>% select(years_programming,age,qualification_score),
-  train.label = train.label ,
-  rounds=1000)
-print(train_error)
-#[1] 0.131432
+#-------------------------------------------
+runXGB_CrossValidation(
+  train.features = df_consent %>% select(age,years_programming,qualification_score),
+  train.label = train.label
+  )
 
-train_error <- runXGBoost(
-  train.features = df_consent %>% select(years_programming,age,adjusted_score),
-  train.label = train.label ,
-  rounds=1000)
-print(train_error)
-#[1] 0.0783
+#[1] "train_error= 0.2498"
+#[1] "test_error= 0.2791"
+
+#-------------------------------------------
+runXGB_CrossValidation(
+  train.features = df_consent %>% select(age,years_programming,qualification_score,test_duration),
+  train.label = train.label
+)
+
+#[1] "train_error= 0.2245"
+#[1] "test_error= 0.2645"
+
+#-------------------------------------------
+runXGB_CrossValidation(
+  train.features = df_consent %>% select(age,years_programming,adjusted_score,test_duration),
+  train.label = train.label 
+  )
+
+#[1] "train_error= 0.2152"
+#[1] "test_error= 0.2629"
+
+#-------------------------------------------
+runXGB_CrossValidation(
+  train.features = df_consent %>% select(age,years_programming,adjusted_score,test_duration,testDuration_fastMembership),
+  train.label = train.label 
+)
+
+#[1] "train_error= 0.1836"
+#[1] "test_error= 0.226"

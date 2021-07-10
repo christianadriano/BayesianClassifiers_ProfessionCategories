@@ -18,9 +18,12 @@ years_programming, age, qualification_score, adjusted_score, test_duration
 
 3- Results (by feature combination and sorted in descending order of test error)
 
+#Only exogenous variables
 age = 0.283
 age, years_programming = 0.2768
 age, years_programming,qualification_score = 0.2791
+
+#Combined with Endogenous variables
 age, years_programming,qualification_score,test_duration = 0.2645
 age, years_programming,adjusted_score,test_duration = 0.2629
 age, years_programming,adjusted_score,test_duration,testDuration_fastMembership = 0.226
@@ -41,8 +44,8 @@ source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding/
 df_consent$is_student = 0
 
 df_consent$profession_str <- as.character(df_consent$profession)
-df_consent[df_consent$profession_str=="Undergraduate_Student",]$is_student <- 1
-df_consent[df_consent$profession_str=="Graduate_Student",]$is_student <- 1
+df_consent[df_consent$profession_str %in% c("Undergraduate_Student","Graduate_Student"),]$is_student <- 1
+df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Other","Programmer"),]$is_student <- 0
 
 #Move all adjusted score to positive scale
 df_consent$adjusted_score <- df_consent$adjusted_score + (-1*min(df_consent$adjusted_score)) + 0.1

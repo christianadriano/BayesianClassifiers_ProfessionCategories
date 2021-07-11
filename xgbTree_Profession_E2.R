@@ -29,7 +29,7 @@ age, years_programming,qualification_score = (0.2791,0.2014)
 #Combined with Endogenous variables
 age, years_programming,qualification_score,test_duration = (0.2645, 0.1921)
 age, years_programming,adjusted_score,test_duration = (0.2629,0.1907)
-age, years_programming,adjusted_score,test_duration,testDuration_fastMembership = 0.226
+age, years_programming,adjusted_score,test_duration,testDuration_fastMembership = (0.226,0.1615)
 
 
 "
@@ -147,7 +147,8 @@ runXGB_CrossValidation(
 #[1] "train_error= 0.2152"
 #[1] "test_error= 0.2629"
 # Only Undergrads as students
-
+#[1] "train_error= 0.1663"
+#[1] "test_error= 0.1907"
 
 #-------------------------------------------
 runXGB_CrossValidation(
@@ -158,3 +159,6 @@ runXGB_CrossValidation(
 #[1] "train_error= 0.1836"
 #[1] "test_error= 0.226"
 # Only Undergrads as students
+#[1] "train_error= 0.0103"
+#[1] "test_error= 0.1615"
+

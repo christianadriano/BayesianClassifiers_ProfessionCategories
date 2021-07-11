@@ -18,15 +18,19 @@ years_programming, age, qualification_score, adjusted_score, test_duration
 
 3- Results (by feature combination and sorted in descending order of test error)
 
+TESTING ERRORS
+#Considered Students = (Undergrads and Grads, only Undergrads)
+
 #Only exogenous variables
-age = 0.283
-age, years_programming = 0.2768
-age, years_programming,qualification_score = 0.2791
+age = (0.283,0.1934)
+age, years_programming = (0.2768,0.2034)
+age, years_programming,qualification_score = (0.2791,0.2014)
 
 #Combined with Endogenous variables
-age, years_programming,qualification_score,test_duration = 0.2645
-age, years_programming,adjusted_score,test_duration = 0.2629
+age, years_programming,qualification_score,test_duration = (0.2645, 0.1921)
+age, years_programming,adjusted_score,test_duration = (0.2629,0.1907)
 age, years_programming,adjusted_score,test_duration,testDuration_fastMembership = 0.226
+
 
 "
 
@@ -42,6 +46,8 @@ source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding/
 
 #create column with student and non-student
 df_consent$is_student = 0
+
+df_consent <- df_consent[!df_consent$profession_str == "Graduate_Student",]
 
 df_consent$profession_str <- as.character(df_consent$profession)
 df_consent[df_consent$profession_str %in% c("Undergraduate_Student","Graduate_Student"),]$is_student <- 1
@@ -78,8 +84,8 @@ runXGB_CrossValidation <- function(train.features,train.label){
                verbose=FALSE
                );
   
-  print(paste0("train_error= ",round(cv$evaluation_log$train_error_mean[cv_error$best_iteration],digits=4)));
-  print(paste0("test_error= ",round(cv$evaluation_log$test_error_mean[cv_error$best_iteration],digits=4)));
+  print(paste0("train_error= ",round(cv$evaluation_log$train_error_mean[cv$best_iteration],digits=4)));
+  print(paste0("test_error= ",round(cv$evaluation_log$test_error_mean[cv$best_iteration],digits=4)));
   
 }
 
@@ -91,6 +97,9 @@ runXGB_CrossValidation(
 
 #[1] "train_error= 0.2786"
 #[1] "test_error= 0.283"
+# Only Undergrads as students
+#[1] "train_error= 0.1934"
+#[1] "test_error= 0.1934"
 
 #-------------------------------------------
 runXGB_CrossValidation(
@@ -100,6 +109,9 @@ runXGB_CrossValidation(
 
 #[1] "train_error= 0.2547"
 #[1] "test_error= 0.2768"
+# Only Undergrads as students
+#[1] "train_error= 0.188"
+#[1] "test_error= 0.2034"
 
 #-------------------------------------------
 runXGB_CrossValidation(
@@ -109,6 +121,9 @@ runXGB_CrossValidation(
 
 #[1] "train_error= 0.2498"
 #[1] "test_error= 0.2791"
+# Only Undergrads as students
+#[1] "train_error= 0.1884"
+#[1] "test_error= 0.2014"
 
 #-------------------------------------------
 runXGB_CrossValidation(
@@ -118,6 +133,10 @@ runXGB_CrossValidation(
 
 #[1] "train_error= 0.2245"
 #[1] "test_error= 0.2645"
+# Only Undergrads as students
+#[1] "train_error= 0.1705"
+#[1] "test_error= 0.1921"
+
 
 #-------------------------------------------
 runXGB_CrossValidation(
@@ -127,6 +146,8 @@ runXGB_CrossValidation(
 
 #[1] "train_error= 0.2152"
 #[1] "test_error= 0.2629"
+# Only Undergrads as students
+
 
 #-------------------------------------------
 runXGB_CrossValidation(
@@ -136,3 +157,4 @@ runXGB_CrossValidation(
 
 #[1] "train_error= 0.1836"
 #[1] "test_error= 0.226"
+# Only Undergrads as students

@@ -37,27 +37,17 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 
 "
 
-install.packages("xgboost")
 library(xgboost)
 library(dplyr)
 
 #------------------------------
 #PRE-PROCESSING
 
-#Load consent data from E2
-source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E2.R")
+#Load consent data from E1
+source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E1.R")
 
 #create column with student and non-student
 df_consent$is_student = 0
-
-df_consent <- df_consent[!df_consent$profession_str == "Graduate_Student",]
-
-df_consent$profession_str <- as.character(df_consent$profession)
-df_consent[df_consent$profession_str %in% c("Undergraduate_Student","Graduate_Student"),]$is_student <- 1
-df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Other","Programmer"),]$is_student <- 0
-
-#Move all adjusted score to positive scale
-df_consent$adjusted_score <- df_consent$adjusted_score + (-1*min(df_consent$adjusted_score)) + 0.1
 
 train.features <- df_consent %>% select(years_programming,age,qualification_score)
 train.label <- df_consent %>% select(is_student)

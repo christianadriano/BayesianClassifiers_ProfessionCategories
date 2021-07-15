@@ -37,6 +37,13 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 
 "
 
+install.packages("mlr3")
+install.packages("mlr3verse")
+
+library(mlr3)
+library(mlr3verse)
+
+
 library(xgboost)
 library(dplyr)
 
@@ -81,8 +88,11 @@ runXGB_CrossValidation <- function(train.features,train.label){
   return(cv); 
 }
 
-#https://stackoverflow.com/questions/35050846/xgboost-in-r-how-does-xgb-cv-pass-the-optimal-parameters-into-xgb-train
+#-----------------------------------------
 
+
+
+#https://mlr3.mlr-org.com/
 #-------------------------------------------
 model <- runXGB_CrossValidation(
   train.features = df_consent %>% select(age,years_programming),

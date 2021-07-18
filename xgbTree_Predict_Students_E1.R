@@ -90,9 +90,11 @@ runXGB_CrossValidation <- function(train.features,train.label){
 
 #-----------------------------------------
 
-
-
 #https://mlr3.mlr-org.com/
+#TODO
+#Implement cross-validation using xgboostTree
+#use only age and years of programming as features
+
 #-------------------------------------------
 model <- runXGB_CrossValidation(
   train.features = df_consent %>% select(age,years_programming),

@@ -62,7 +62,7 @@ df_consent$is_student = 0
 df_consent$profession_str <- as.character(df_consent$profession)
 df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_student <- 1
 df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Graduate_Student","Other","Programmer"),]$is_student <- 0
-
+df_consent$is_student <-  as.factor(df_consent$is_student)
 
 #-----------------------------------------
 
@@ -72,10 +72,10 @@ df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist"
 #use only age and years of programming as features
 
 #Creaete task (mlr3 model)
-task_students <- TaskClassif$new(data=df_consent, 
+task_students <- TaskClassif$new(df_consent, 
                                  id = "worker_id", 
                                  target = "is_student")
-
+print(task_students)
 #-------------------------------------------
 model <- runXGB_CrossValidation(
   train.features = df_consent %>% select(age,years_programming),

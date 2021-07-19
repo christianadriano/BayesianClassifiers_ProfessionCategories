@@ -95,6 +95,11 @@ runXGB_CrossValidation <- function(train.features,train.label){
 #Implement cross-validation using xgboostTree
 #use only age and years of programming as features
 
+#Creaete task (mlr3 model)
+task_students <- TaskClassif$new(data=df_consent, 
+                                 id = "worker_id", 
+                                 target = "is_student")
+
 #-------------------------------------------
 model <- runXGB_CrossValidation(
   train.features = df_consent %>% select(age,years_programming),

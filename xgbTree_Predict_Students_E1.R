@@ -39,7 +39,9 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 
 install.packages("mlr3")
 install.packages("mlr3verse")
+install.packages("data.table")
 
+library(data.table)
 library(mlr3)
 library(mlr3verse)
 
@@ -61,32 +63,6 @@ df_consent$profession_str <- as.character(df_consent$profession)
 df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_student <- 1
 df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Graduate_Student","Other","Programmer"),]$is_student <- 0
 
-train.features <- df_consent %>% select(years_programming,age,qualification_score)
-train.label <- df_consent %>% select(is_student)
-
-#-----------------------------
-
-
-runXGB_CrossValidation <- function(train.features,train.label){
-  dtrain <- xgb.DMatrix(data = as.matrix(train.features), 
-                        label = as.matrix(train.label));
-  cv <- xgb.cv(data = dtrain, 
-               nrounds = 1000, #larger rounds did not give better results
-               early_stopping_rounds=500, #stop after error did not change and pick the best iteration
-               nfold = 10, #best practice, smaller value, 5 fold gave similar results
-               metrics = list("error"), #standard for binary classification
-               max_depth = 4, #standard parameterization is 6, we reduced to 4 to reduce overfitting
-               eta = 0.3, #standard, the smaller, the less overfitting risk
-               objective = "binary:logistic",
-               verbose=FALSE,
-               prediction=TRUE
-  );
-  
-  print(paste0("train_error= ",round(cv$evaluation_log$train_error_mean[cv$best_iteration],digits=4)));
-  print(paste0("test_error= ",round(cv$evaluation_log$test_error_mean[cv$best_iteration],digits=4)));
- 
-  return(cv); 
-}
 
 #-----------------------------------------
 

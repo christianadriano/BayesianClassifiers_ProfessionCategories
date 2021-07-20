@@ -37,9 +37,9 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 
 "
 
-install.packages("mlr3")
-install.packages("mlr3verse")
-install.packages("data.table")
+#install.packages("mlr3")
+#install.packages("mlr3verse")
+#install.packages("data.table")
 
 library(data.table)
 library(mlr3)
@@ -64,6 +64,8 @@ df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_studen
 df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Graduate_Student","Other","Programmer"),]$is_student <- 0
 df_consent$is_student <-  as.factor(df_consent$is_student)
 
+df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
+
 #-----------------------------------------
 
 #https://mlr3.mlr-org.com/
@@ -71,11 +73,44 @@ df_consent$is_student <-  as.factor(df_consent$is_student)
 #Implement cross-validation using xgboostTree
 #use only age and years of programming as features
 
+#TASK
 #Creaete task (mlr3 model)
-task_students <- TaskClassif$new(df_consent, 
-                                 id = "worker_id", 
-                                 target = "is_student")
-print(task_students)
+task <- TaskClassif$new(df_selected, 
+                        id = "worker_id", 
+                        target = "is_student")
+print(task)
+
+#LEARNER (2 step procedure)
+learner = lrn("classif.rpart", id = "rp", cp = 0.001)
+
+#train
+train_set = sample(task$nrow, 0.8 * task$nrow)
+test_set = setdiff(seq_len(task$nrow), train_set)
+
+learner$train(task, row_ids = train_set)
+print(learner$model)
+
+#predict
+prediction = learner$predict(task, row_ids = test_set)
+print(prediction)
+prediction$confusion
+#           truth
+# response   0   1
+#        0 252  73
+#        1   5  28
+
+#CHANGING PREDICT TYPE TO PROBABILITY
+learner$predict_type = "prob"
+# re-fit the model
+learner$train(task, row_ids = train_set)
+
+# rebuild prediction object
+prediction = learner$predict(task, row_ids = test_set)
+head(as.data.table(prediction))
+
+#-----------------------------------
+
+#TODO: use cross-validation instead do fixed splits
 #-------------------------------------------
 model <- runXGB_CrossValidation(
   train.features = df_consent %>% select(age,years_programming),

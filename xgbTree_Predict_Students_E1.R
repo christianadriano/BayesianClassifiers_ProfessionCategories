@@ -38,13 +38,13 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 "
 
 #install.packages("mlr3")
-#install.packages("mlr3verse")
+install.packages("mlr3verse")
 #install.packages("data.table")
 
 library(data.table)
 library(mlr3)
 library(mlr3verse)
-
+library(ggplot2)
 
 library(xgboost)
 library(dplyr)
@@ -109,6 +109,11 @@ prediction = learner$predict(task, row_ids = test_set)
 head(as.data.table(prediction))
 
 #-----------------------------------
+#PLOT RESULTS
+learner = lrn("classif.rpart", predict_type = "prob")
+learner$train(task)
+prediction = learner$predict(task)
+ggplot2::autoplot(prediction)
 
 #TODO: use cross-validation instead do fixed splits
 #-------------------------------------------

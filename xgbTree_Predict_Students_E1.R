@@ -38,7 +38,7 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 "
 
 #install.packages("mlr3")
-install.packages("mlr3verse")
+#install.packages("mlr3verse")
 #install.packages("data.table")
 
 library(data.table)
@@ -96,8 +96,8 @@ print(prediction)
 prediction$confusion
 #           truth
 # response   0   1
-#        0 252  73
-#        1   5  28
+#        0 252  66
+#        1   4  36
 
 #CHANGING PREDICT TYPE TO PROBABILITY
 learner$predict_type = "prob"
@@ -115,7 +115,37 @@ learner$train(task)
 prediction = learner$predict(task)
 ggplot2::autoplot(prediction)
 
-#TODO: use cross-validation instead do fixed splits
+
+#-------------------------------------------
+#Cross-validation
+
+resampling = rsmp("cv", folds = 10)
+resampling$instantiate(task)
+resampling$iters
+rr = resample(task, learner, resampling, store_models = TRUE)
+print(rr)
+
+# average performance across all resampling iterations
+rr$aggregate(msr("classif.ce")) 
+#> 0.1784383 
+
+#performance for the individual resampling iterations:
+rr$score(msr("classif.ce"))
+#  1:            cv         1 <PredictionClassif[19]>  0.1620112
+#  2:            cv         2 <PredictionClassif[19]>  0.1061453
+#  3:            cv         3 <PredictionClassif[19]>  0.1508380
+#  4:            cv         4 <PredictionClassif[19]>  0.2178771
+#  5:            cv         5 <PredictionClassif[19]>  0.2234637
+#  6:            cv         6 <PredictionClassif[19]>  0.1284916
+#  7:            cv         7 <PredictionClassif[19]>  0.1899441
+#  8:            cv         8 <PredictionClassif[19]>  0.2011173
+#  9:            cv         9 <PredictionClassif[19]>  0.1685393
+# 10:            cv        10 <PredictionClassif[19]>  0.2359551
+
+#TODO
+#Decide which learner from which fold to use to make the predictions. 
+#Maybe the best, worse, and the one close to the mean?
+
 #-------------------------------------------
 model <- runXGB_CrossValidation(
   train.features = df_consent %>% select(age,years_programming),

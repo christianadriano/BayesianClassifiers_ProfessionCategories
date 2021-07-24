@@ -119,7 +119,7 @@ ggplot2::autoplot(prediction)
 #-------------------------------------------
 #Cross-validation
 
-resampling = rsmp("cv", folds = 10)
+resampling = rsmp("cv", folds = 11)
 resampling$instantiate(task)
 resampling$iters
 rr = resample(task, learner, resampling, store_models = TRUE)
@@ -149,7 +149,12 @@ rr$score(msr("classif.ce"))
 df <- data.frame(rr$score(msr("classif.ce")))
 View(df)
 #Best learner
-rr$score
+bestLearner <- df[which.min(df$classif.ce),]
+#Worst learner
+worstLearner <- df[which.max(df$classif.ce),]
+#Median learner (one with the median error)
+sorted <- df[order(df$classif.ce),]
+Row <- sorted[6,]
 
 #-------------------------------------------
 model <- runXGB_CrossValidation(

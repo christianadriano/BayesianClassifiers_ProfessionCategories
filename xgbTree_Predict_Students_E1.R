@@ -88,11 +88,11 @@ train_set = sample(task$nrow, 0.8 * task$nrow)
 test_set = setdiff(seq_len(task$nrow), train_set)
 
 learner$train(task, row_ids = train_set)
-print(learner$model)
+#print(learner$model)
 
 #predict
 prediction = learner$predict(task, row_ids = test_set)
-print(prediction)
+#print(prediction)
 prediction$confusion
 #           truth
 # response   0   1
@@ -106,7 +106,7 @@ learner$train(task, row_ids = train_set)
 
 # rebuild prediction object
 prediction = learner$predict(task, row_ids = test_set)
-head(as.data.table(prediction))
+#head(as.data.table(prediction))
 
 #-----------------------------------
 #PLOT RESULTS
@@ -123,7 +123,7 @@ resampling = rsmp("cv", folds = 10)
 resampling$instantiate(task)
 resampling$iters
 rr = resample(task, learner, resampling, store_models = TRUE)
-print(rr)
+#print(rr)
 
 # average performance across all resampling iterations
 rr$aggregate(msr("classif.ce")) 
@@ -145,6 +145,11 @@ rr$score(msr("classif.ce"))
 #TODO
 #Decide which learner from which fold to use to make the predictions. 
 #Maybe the best, worse, and the one close to the mean?
+
+df <- data.frame(rr$score(msr("classif.ce")))
+View(df)
+#Best learner
+rr$score
 
 #-------------------------------------------
 model <- runXGB_CrossValidation(

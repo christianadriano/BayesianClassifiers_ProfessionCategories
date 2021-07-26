@@ -43,7 +43,7 @@ age, years_programming,adjusted_score,test_duration,testDuration_fastMembership 
 
 library(data.table)
 library(mlr3)
-library(mlr3verse)
+library(mlr3verse) #https://mlr3.mlr-org.com/
 library(ggplot2)
 
 library(xgboost)
@@ -67,10 +67,7 @@ df_consent$is_student <-  as.factor(df_consent$is_student)
 df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
 
 #-----------------------------------------
-
-#https://mlr3.mlr-org.com/
-#TODO
-#Implement cross-validation using xgboostTree
+#Implemented cross-validation using xgboostTree
 #use only age and years of programming as features
 
 #TASK
@@ -78,7 +75,7 @@ df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
 task <- TaskClassif$new(df_selected, 
                         id = "worker_id", 
                         target = "is_student")
-print(task)
+#print(task)
 
 #LEARNER (2 step procedure)
 learner = lrn("classif.rpart", id = "rp", cp = 0.001)
@@ -155,6 +152,50 @@ worstLearner <- df[which.max(df$classif.ce),]
 #Median learner (one with the median error)
 sorted <- df[order(df$classif.ce),]
 Row <- sorted[6,]
+
+#-------------------------------------------
+#AUTO-TUNING
+
+#Using Nested Resampling
+#https://mlr3book.mlr-org.com/nested-resampling.html#nested-resampling
+
+learner = lrn("classif.rpart")
+search_space = ps(cp = p_dbl(lower = 0.001, upper = 0.1))
+terminator = trm("evals", n_evals = 5)
+tuner = tnr("grid_search", resolution = 10)
+resampling = rsmp("cv")
+measure = msr("classif.ce")
+auto_tuner = AutoTuner$new(learner, resampling, measure, terminator, tuner, search_space)
+
+#Using cross-validation in the outerloop
+outer_resampling = rsmp("cv", folds = 3)
+
+rr = resample(task, at, outer_resampling, store_models = TRUE)
+
+extract_inner_tuning_results(rr)
+#       cp learner_param_vals  x_domain classif.ce
+# 1: 0.089          <list[2]> <list[1]>  0.1711555
+# 2: 0.034          <list[2]> <list[1]>  0.1870798
+# 3: 0.056          <list[2]> <list[1]>  0.1837045
+
+#The results above are around the average values of 
+#the ones produced using he 10-fold cross-validation
+
+rr$score()
+#       resampling_id iteration           prediction classif.ce
+# 1:            cv         1 <PredictionClassif[19]>  0.1963087
+# 2:            cv         2 <PredictionClassif[19]>  0.1610738
+# 3:            cv         3 <PredictionClassif[19]>  0.1895973
+
+#Larger error in the oute resampling sugges that
+#the models with the optimized hyperparameters are overfitting the data.
+
+#hence, use the aggregate value of the outer resampling
+rr$aggregate()
+#classif.ce  = 0.1823266 
+
+#FINAL MODEL produced by the auto-tuner
+model <- auto_tuner$train(task)
 
 #-------------------------------------------
 model <- runXGB_CrossValidation(

@@ -58,11 +58,11 @@ df_consent <- load_consent_create_indexes()
 
 #create column with student and non-student
 df_consent$is_student = 0
+df_consent$is_student <-  factor(df_consent$is_student, levels = c(1,0))
 
 df_consent$profession_str <- as.character(df_consent$profession)
 df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_student <- 1
 df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Graduate_Student","Other","Programmer"),]$is_student <- 0
-df_consent$is_student <-  as.factor(df_consent$is_student)
 
 df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
 
@@ -144,7 +144,7 @@ rr$score(msr("classif.ce"))
 #Maybe the best, worse, and the one close to the mean?
 
 df <- data.frame(rr$score(msr("classif.ce")))
-View(df)
+#View(df)
 #Best learner
 bestLearner <- df[which.min(df$classif.ce),]
 #Worst learner
@@ -196,6 +196,26 @@ rr$aggregate()
 
 #FINAL MODEL produced by the auto-tuner
 model <- auto_tuner$train(task)
+
+#-------------------------------------------
+# Apply model to label E1
+#Load consent data from E2
+source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E1.R")
+df_consent_E1 <- load_consent_create_indexes()
+
+#create column with student and non-student
+df_consent_E1$is_student = 0
+df_consent_E1$is_student <-  factor(df_consent_E1$is_student,levels=c(1,0))
+
+df_selected_E1 <- df_consent_E1 %>% select(worker_id,years_programming,age,is_student)
+
+task_test <- TaskClassif$new(df_selected_E1, 
+                        id = "worker_id", 
+                        target = "is_student")
+
+test_set =  task_test$nrow
+prediction = model$predict(task_test, row_ids = c(1:task_test$nrow))
+
 
 #-------------------------------------------
 model <- runXGB_CrossValidation(

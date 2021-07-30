@@ -1,39 +1,28 @@
 "
-XGBoostTree to predict professions (Student and Non-Student) for E2 participants
+Classification Tree Learner to predict professions (Student and Non-Student) for E2 participants
 
 - Builds a model using E2 data 
 - Apply this model to predict which participants in E1 are probably students (undergraduate)
 
-Uses the Extreme Gradient Boosting, which is an efficient implementation 
-of the gradient boosting frame-work from Chen & Guestrin (2016) <doi:10.1145/2939672.2939785>
+https://mlr3.mlr-org.com/reference/mlr_learners_classif.rpart.html
 
 Results:
 
 1- Training setup
 I reported both training and test error using 10-fold cross-validation. 
-To mitigate overfitting of the decision trees, I set hyperparameters accordingly, 
-for instance, depth=4 (intsead of standard 6), eta =0.3 (standard, lower the better),
-stopping criteria to half of the rounds.
 
 2- Feature selection
-I selected the following features available after right after the qualification test:
-years_programming, age, qualification_score, adjusted_score, test_duration
+I selected the following features available before the qualification test:
+years_programming, age
 
 3- Results (by feature combination and sorted in descending order of test error)
 
 TESTING ERRORS
 #Considered Students = (Undergrads and Grads, only Undergrads)
 
-#Only exogenous variables
 age = (0.283,0.1934)
+year_programming = 
 age, years_programming = (0.2768,0.2034)
-age, years_programming,qualification_score = (0.2791,0.2014)
-
-#Combined with Endogenous variables
-age, years_programming,qualification_score,test_duration = (0.2645, 0.1921)
-age, years_programming,adjusted_score,test_duration = (0.2629,0.1907)
-age, years_programming,adjusted_score,test_duration,testDuration_fastMembership = 0.226
-
 
 "
 
@@ -216,24 +205,4 @@ task_test <- TaskClassif$new(df_selected_E1,
 test_set =  task_test$nrow
 prediction = model$predict(task_test, row_ids = c(1:task_test$nrow))
 
-
-#-------------------------------------------
-model <- runXGB_CrossValidation(
-  train.features = df_consent %>% select(age,years_programming),
-  train.label = train.label 
-)
-
-#------------------------------
-#PRE-PROCESSING
-
-#Load consent data from E1
-source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E1.R")
-
-#create column with student and non-student
-df1_consent$is_student = 0
-
-train.features <- df1_consent %>% select(years_programming,age,qualification_score)
-train.label <- df1_consent %>% select(is_student)
-
-#-----------------------------
 

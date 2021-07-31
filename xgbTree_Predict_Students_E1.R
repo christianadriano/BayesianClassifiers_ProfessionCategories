@@ -188,7 +188,7 @@ model <- auto_tuner$train(task)
 
 #-------------------------------------------
 # Apply model to label E1
-#Load consent data from E2
+#Load consent data from E1
 source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E1.R")
 df_consent_E1 <- load_consent_create_indexes()
 
@@ -201,8 +201,11 @@ df_selected_E1 <- df_consent_E1 %>% select(worker_id,years_programming,age,is_st
 task_test <- TaskClassif$new(df_selected_E1, 
                         id = "worker_id", 
                         target = "is_student")
+#task_text <- mlr3::TaskSupervised::TaskClassif$droplevels(cols="worker_id")
 
-test_set =  task_test$nrow
+task_test$droplevels(cols="worker_id")
+
 prediction = model$predict(task_test, row_ids = c(1:task_test$nrow))
 
+prediction2 = model$predict(task, row_ids = c(1:task$nrow))
 

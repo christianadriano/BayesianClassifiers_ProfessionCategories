@@ -59,51 +59,17 @@ df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
 #Implemented cross-validation using xgboostTree
 #use only age and years of programming as features
 
+
+
+
+#-------------------------------------------
+#Cross-validation
+
 #TASK
 #Creaete task (mlr3 model)
 task <- TaskClassif$new(df_selected, 
                         id = "worker_id", 
                         target = "is_student")
-#print(task)
-
-#LEARNER (2 step procedure)
-learner = lrn("classif.rpart", id = "rp", cp = 0.001)
-
-#train
-train_set = sample(task$nrow, 0.8 * task$nrow)
-test_set = setdiff(seq_len(task$nrow), train_set)
-
-learner$train(task, row_ids = train_set)
-#print(learner$model)
-
-#predict
-prediction = learner$predict(task, row_ids = test_set)
-#print(prediction)
-prediction$confusion
-#           truth
-# response   0   1
-#        0 252  66
-#        1   4  36
-
-#CHANGING PREDICT TYPE TO PROBABILITY
-learner$predict_type = "prob"
-# re-fit the model
-learner$train(task, row_ids = train_set)
-
-# rebuild prediction object
-prediction = learner$predict(task, row_ids = test_set)
-#head(as.data.table(prediction))
-
-#-----------------------------------
-#PLOT RESULTS
-learner = lrn("classif.rpart", predict_type = "prob")
-learner$train(task)
-prediction = learner$predict(task)
-ggplot2::autoplot(prediction)
-
-
-#-------------------------------------------
-#Cross-validation
 
 resampling = rsmp("cv", folds = 11)
 resampling$instantiate(task)
@@ -128,9 +94,6 @@ rr$score(msr("classif.ce"))
 #  9:            cv         9 <PredictionClassif[19]>  0.1685393
 # 10:            cv        10 <PredictionClassif[19]>  0.2359551
 
-#TODO
-#Decide which learner from which fold to use to make the predictions. 
-#Maybe the best, worse, and the one close to the mean?
 
 df <- data.frame(rr$score(msr("classif.ce")))
 #View(df)
@@ -141,6 +104,11 @@ worstLearner <- df[which.max(df$classif.ce),]
 #Median learner (one with the median error)
 sorted <- df[order(df$classif.ce),]
 Row <- sorted[6,]
+
+#How to decide which learner from which fold to use to make the predictions?
+#Maybe the best, worse, and the one close to the mean?
+#Instead, I will use Auto-Tuning to find the best model
+
 
 #-------------------------------------------
 #AUTO-TUNING
@@ -208,4 +176,50 @@ task_test$droplevels(cols="worker_id")
 prediction = model$predict(task_test, row_ids = c(1:task_test$nrow))
 
 prediction2 = model$predict(task, row_ids = c(1:task$nrow))
+
+
+#---------------------------------------
+# WITHOUT CROSS-VALIDATION
+
+#TASK
+#Creaete task (mlr3 model)
+task <- TaskClassif$new(df_selected, 
+                        id = "worker_id", 
+                        target = "is_student")
+#print(task)
+
+#LEARNER (2 step procedure)
+learner = lrn("classif.rpart", id = "rp", cp = 0.001)
+
+#train
+train_set = sample(task$nrow, 0.8 * task$nrow)
+test_set = setdiff(seq_len(task$nrow), train_set)
+
+learner$train(task, row_ids = train_set)
+#print(learner$model)
+
+#predict
+prediction = learner$predict(task, row_ids = test_set)
+#print(prediction)
+prediction$confusion
+#           truth
+# response   0   1
+#        0 252  66
+#        1   4  36
+
+#CHANGING PREDICT TYPE TO PROBABILITY
+learner$predict_type = "prob"
+# re-fit the model
+learner$train(task, row_ids = train_set)
+
+# rebuild prediction object
+prediction = learner$predict(task, row_ids = test_set)
+#head(as.data.table(prediction))
+
+#-----------------------------------
+#PLOT RESULTS
+learner = lrn("classif.rpart", predict_type = "prob")
+learner$train(task)
+prediction = learner$predict(task)
+ggplot2::autoplot(prediction)
 

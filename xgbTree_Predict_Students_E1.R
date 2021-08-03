@@ -154,6 +154,10 @@ rr$aggregate()
 #FINAL MODEL produced by the auto-tuner
 model <- auto_tuner$train(task)
 
+#PLOT RESULTS E2
+prediction = model$predict(task)
+ggplot2::autoplot(prediction)
+
 #-------------------------------------------
 # Apply model to label E1
 #Load consent data from E1
@@ -169,13 +173,15 @@ df_selected_E1 <- df_consent_E1 %>% select(worker_id,years_programming,age,is_st
 task_test <- TaskClassif$new(df_selected_E1, 
                         id = "worker_id", 
                         target = "is_student")
-#task_text <- mlr3::TaskSupervised::TaskClassif$droplevels(cols="worker_id")
 
 task_test$droplevels(cols="worker_id")
 
-prediction = model$predict(task_test, row_ids = c(1:task_test$nrow))
+prediction_E1 = model$predict(task_test, row_ids = c(1:task_test$nrow))
 
-prediction2 = model$predict(task, row_ids = c(1:task$nrow))
+prediction_E2 = model$predict(task, row_ids = c(1:task$nrow))
+
+#PLOT RESULTS E1
+ggplot2::autoplot(prediction)
 
 
 #---------------------------------------

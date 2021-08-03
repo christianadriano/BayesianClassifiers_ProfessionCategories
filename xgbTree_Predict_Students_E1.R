@@ -56,17 +56,10 @@ df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist"
 df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
 
 #-----------------------------------------
-#Implemented cross-validation using xgboostTree
-#use only age and years of programming as features
-
-
-
-
-#-------------------------------------------
 #Cross-validation
+#Used only age and years of programming as features
 
-#TASK
-#Creaete task (mlr3 model)
+#Create TasK (mlr3 model)
 task <- TaskClassif$new(df_selected, 
                         id = "worker_id", 
                         target = "is_student")
@@ -167,8 +160,10 @@ df_consent_E1 <- load_consent_create_indexes()
 #create column with student and non-student
 df_consent_E1$is_student = 0
 df_consent_E1$is_student <-  factor(df_consent_E1$is_student,levels=c(1,0))
-
 df_selected_E1 <- df_consent_E1 %>% select(worker_id,years_programming,age,is_student)
+#Filter out workers who did not provide age or years of programming
+df_selected_E1 <-  df_selected_E1[!is.na(df_selected_E1$age) & !is.na(df_selected_E1$years_programming),]
+
 
 task_test <- TaskClassif$new(df_selected_E1, 
                         id = "worker_id", 
@@ -181,7 +176,7 @@ prediction_E1 = model$predict(task_test, row_ids = c(1:task_test$nrow))
 prediction_E2 = model$predict(task, row_ids = c(1:task$nrow))
 
 #PLOT RESULTS E1
-ggplot2::autoplot(prediction)
+ggplot2::autoplot(prediction_E1)
 
 
 #---------------------------------------

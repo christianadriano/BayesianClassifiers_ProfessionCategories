@@ -48,12 +48,13 @@ df_consent <- load_consent_create_indexes()
 #create column with student and non-student
 df_consent$is_student = 0
 df_consent$is_student <-  factor(df_consent$is_student, levels = c(1,0))
+df_consent$is_student <- as.factor(df_consent$is_student)
 
 df_consent$profession_str <- as.character(df_consent$profession)
 df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_student <- 1
 df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Graduate_Student","Other","Programmer"),]$is_student <- 0
 
-df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
+df_selected <- df_consent %>% select(years_programming,age,is_student)
 
 #-----------------------------------------
 #Cross-validation
@@ -61,9 +62,9 @@ df_selected <- df_consent %>% select(worker_id,years_programming,age,is_student)
 
 #Create TasK (mlr3 model)
 task <- TaskClassif$new(df_selected, 
-                        id = "worker_id", 
+                        id = "training", 
                         target = "is_student")
-
+#print(task)
 resampling = rsmp("cv", folds = 11)
 resampling$instantiate(task)
 resampling$iters
@@ -166,7 +167,7 @@ df_selected_E1 <-  df_selected_E1[!is.na(df_selected_E1$age) & !is.na(df_selecte
 
 
 task_test <- TaskClassif$new(df_selected_E1, 
-                        id = "worker_id", 
+                        id = "age", 
                         target = "is_student")
 
 task_test$droplevels(cols="worker_id")

@@ -64,7 +64,7 @@ df_selected <- df_consent %>% select(years_programming,age,is_student)
 task <- TaskClassif$new(df_selected, 
                         id = "training", 
                         target = "is_student")
-#print(task)
+#print(task)  
 resampling = rsmp("cv", folds = 11)
 resampling$instantiate(task)
 resampling$iters
@@ -161,16 +161,17 @@ df_consent_E1 <- load_consent_create_indexes()
 #create column with student and non-student
 df_consent_E1$is_student = 0
 df_consent_E1$is_student <-  factor(df_consent_E1$is_student,levels=c(1,0))
-df_selected_E1 <- df_consent_E1 %>% select(worker_id,years_programming,age,is_student)
+df_consent_E1$is_student <- as.factor(df_consent_E1$is_student)
+df_selected_E1 <- df_consent_E1 %>% select(years_programming,age,is_student)
 #Filter out workers who did not provide age or years of programming
 df_selected_E1 <-  df_selected_E1[!is.na(df_selected_E1$age) & !is.na(df_selected_E1$years_programming),]
 
 
 task_test <- TaskClassif$new(df_selected_E1, 
-                        id = "age", 
+                        id = "test", 
                         target = "is_student")
 
-task_test$droplevels(cols="worker_id")
+#task_test$droplevels(cols="worker_id")
 
 prediction_E1 = model$predict(task_test, row_ids = c(1:task_test$nrow))
 
@@ -178,6 +179,9 @@ prediction_E2 = model$predict(task, row_ids = c(1:task$nrow))
 
 #PLOT RESULTS E1
 ggplot2::autoplot(prediction_E1)
+
+#TODO:
+#MERGE BACK IS_Student prediction RESULTS.
 
 
 #---------------------------------------

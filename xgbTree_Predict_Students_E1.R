@@ -171,18 +171,19 @@ task_test <- TaskClassif$new(df_selected_E1,
                         id = "test", 
                         target = "is_student")
 
-#task_test$droplevels(cols="worker_id")
-
 prediction_E1 = model$predict(task_test, row_ids = c(1:task_test$nrow))
-
-prediction_E2 = model$predict(task, row_ids = c(1:task$nrow))
 
 #PLOT RESULTS E1
 ggplot2::autoplot(prediction_E1)
 
-#TODO:
 #MERGE BACK IS_Student prediction RESULTS.
 
+df_features <- data_frame(task_test$data())
+df_response <- data_frame(response)
+
+results <- cbind(df_features,df_response)
+
+dplyr::left_join(df_selected_E1,prediction_E1,by =c("age","years_programming"), copy=FALSE)
 
 #---------------------------------------
 # WITHOUT CROSS-VALIDATION

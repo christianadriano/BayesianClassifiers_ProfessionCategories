@@ -54,7 +54,7 @@ df_consent$profession_str <- as.character(df_consent$profession)
 df_consent[df_consent$profession_str %in% c("Undergraduate_Student","Graduate_Student"),]$is_student <- 1
 df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist","Other","Programmer"),]$is_student <- 0
 
-df_selected <- df_consent %>% select(age,years_programming,is_student)
+df_selected <- df_consent %>% select(years_programming,is_student)
 
 #-----------------------------------------
 #Cross-validation
@@ -78,7 +78,10 @@ rr$aggregate(msr("classif.ce"))
 #> 0.187358 (age, only undergrads)
 #> 0.2477591 (years_programing, only undergrads)
 
-
+#Consider as students Undergrads and Grads
+#> 0.2891375 (age, years_programing) <<<<BEST
+#> 0.2869311 (age)
+#>  0.3517827 (years_programing)
 
 #performance for the individual resampling iterations:
 rr$score(msr("classif.ce"))

@@ -18,11 +18,11 @@ years_programming, age
 3- Results (by feature combination and sorted in descending order of test error)
 
 TESTING ERRORS
-#Considered Students = (Undergrads and Grads, only Undergrads)
+#Considered Students = (Undergrads and Grads,only Undergrads)
 
-age = (0.283,0.1934)
-year_programming = 
-age, years_programming = (0.2768,0.2034)
+age =()
+year_programming = ()
+age, years_programming = (0.1868433,)
 
 "
 
@@ -51,10 +51,10 @@ df_consent$is_student <-  factor(df_consent$is_student, levels = c(1,0))
 df_consent$is_student <- as.factor(df_consent$is_student)
 
 df_consent$profession_str <- as.character(df_consent$profession)
-df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_student <- 1
-df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist", "Graduate_Student","Other","Programmer"),]$is_student <- 0
+df_consent[df_consent$profession_str %in% c("Undergraduate_Student","Graduate_Student"),]$is_student <- 1
+df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist","Other","Programmer"),]$is_student <- 0
 
-df_selected <- df_consent %>% select(years_programming,age,is_student)
+df_selected <- df_consent %>% select(age,years_programming,is_student)
 
 #-----------------------------------------
 #Cross-validation
@@ -65,7 +65,7 @@ task <- TaskClassif$new(df_selected,
                         id = "training", 
                         target = "is_student")
 #print(task)  
-resampling = rsmp("cv", folds = 11)
+resampling = rsmp("cv", folds = 10)
 resampling$instantiate(task)
 resampling$iters
 rr = resample(task, learner, resampling, store_models = TRUE)
@@ -73,7 +73,12 @@ rr = resample(task, learner, resampling, store_models = TRUE)
 
 # average performance across all resampling iterations
 rr$aggregate(msr("classif.ce")) 
-#> 0.1784383 
+#Consider as students only Undergrads
+#> 0.1868433 (age, years_programing) <<<<BEST
+#> 0.187358 (age, only undergrads)
+#> 0.2477591 (years_programing, only undergrads)
+
+
 
 #performance for the individual resampling iterations:
 rr$score(msr("classif.ce"))
@@ -119,7 +124,7 @@ measure = msr("classif.ce")
 auto_tuner = AutoTuner$new(learner, resampling, measure, terminator, tuner, search_space)
 
 #Using cross-validation in the outerloop
-outer_resampling = rsmp("cv", folds = 3)
+outer_resampling = rsmp("cv", folds = 10)
 
 rr = resample(task, at, outer_resampling, store_models = TRUE)
 

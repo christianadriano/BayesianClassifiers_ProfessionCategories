@@ -194,13 +194,12 @@ df_merged_E1 <- data.frame(cbind(df_features,df_response))
 #df_merged_E1 <- 
 #dplyr::left_join(df_selected_E1,prediction_E1,by =c("age","years_programming"), copy=FALSE)
 
+#HISTOGRAM PLOTS (make better using ggplot density)
 hist(df_merged_E1[df_merged_E1$response==1,]$age)
 hist(df_merged_E1[df_merged_E1$response==0,]$age)
 
 hist(df_merged_E1[df_merged_E1$response==1,]$years_programming)
 hist(df_merged_E1[df_merged_E1$response==0,]$years_programming)
-
-#TODO
 
 ## RUN STATISTICAL TEST
 t.test(df_merged_E1[df_merged_E1$response==1,]$age,
@@ -215,6 +214,9 @@ t.test(df_merged_E1[df_merged_E1$response==1,]$years_programming,
 
 #Students and non-students are statistically significant distinct with
 #respect to distribution of their age and years_programming
+
+#Write back is_student to file or extra file to be merged later.
+
 
 #---------------------------------------
 # WITHOUT CROSS-VALIDATION

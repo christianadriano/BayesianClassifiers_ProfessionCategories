@@ -51,10 +51,10 @@ df_consent$is_student <-  factor(df_consent$is_student, levels = c(1,0))
 df_consent$is_student <- as.factor(df_consent$is_student)
 
 df_consent$profession_str <- as.character(df_consent$profession)
-df_consent[df_consent$profession_str %in% c("Undergraduate_Student","Graduate_Student"),]$is_student <- 1
-df_consent[df_consent$profession_str %in% c("Professional_Developer", "Hobbyist","Other","Programmer"),]$is_student <- 0
+df_consent[df_consent$profession_str %in% c("Undergraduate_Student"),]$is_student <- 1
+df_consent[df_consent$profession_str %in% c("Professional_Developer","Graduate_Student", "Hobbyist","Other","Programmer"),]$is_student <- 0
 
-df_selected <- df_consent %>% select(years_programming,is_student)
+df_selected <- df_consent %>% select(years_programming, age,is_student)
 
 #-----------------------------------------
 #Cross-validation
@@ -189,9 +189,23 @@ ggplot2::autoplot(prediction_E1)
 df_features <- data_frame(task_test$data())
 df_response <- data_frame(response)
 
-results <- cbind(df_features,df_response)
+df_merged_E1 <- data.frame(cbind(df_features,df_response))
 
-dplyr::left_join(df_selected_E1,prediction_E1,by =c("age","years_programming"), copy=FALSE)
+#df_merged_E1 <- 
+#dplyr::left_join(df_selected_E1,prediction_E1,by =c("age","years_programming"), copy=FALSE)
+
+hist(df_merged_E1[df_merged_E1$response==1,]$age)
+hist(df_merged_E1[df_merged_E1$response==0,]$age)
+
+hist(df_merged_E1[df_merged_E1$response==1,]$years_programming)
+hist(df_merged_E1[df_merged_E1$response==0,]$years_programming)
+
+#TODO
+## RUN STATISTICAL TEST
+
+
+
+
 
 #---------------------------------------
 # WITHOUT CROSS-VALIDATION

@@ -201,11 +201,20 @@ hist(df_merged_E1[df_merged_E1$response==1,]$years_programming)
 hist(df_merged_E1[df_merged_E1$response==0,]$years_programming)
 
 #TODO
+
 ## RUN STATISTICAL TEST
+t.test(df_merged_E1[df_merged_E1$response==1,]$age,
+       df_merged_E1[df_merged_E1$response==0,]$age,
+       )
+#p-value < 2.2e-16
 
+t.test(df_merged_E1[df_merged_E1$response==1,]$years_programming,
+       df_merged_E1[df_merged_E1$response==0,]$years_programming,
+)
+#p-value = 1.512e-06
 
-
-
+#Students and non-students are statistically significant distinct with
+#respect to distribution of their age and years_programming
 
 #---------------------------------------
 # WITHOUT CROSS-VALIDATION

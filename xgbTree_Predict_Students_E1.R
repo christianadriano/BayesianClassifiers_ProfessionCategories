@@ -231,6 +231,22 @@ wasserstein1d(df_merged_E1[df_merged_E1$response==1,]$years_programming,
 
 #Age distributions are 6 times more distant than years_programming. 
 
+##
+#Computing the Wasserstein metric with the distributions scaled.
+wasserstein1d(scale(df_merged_E1[df_merged_E1$response==1,]$age),
+              scale(df_merged_E1[df_merged_E1$response==0,]$age),
+)
+#[1] 0.4236039
+
+wasserstein1d(scale(df_merged_E1[df_merged_E1$response==1,]$years_programming),
+              scale(df_merged_E1[df_merged_E1$response==0,]$years_programming),
+)
+#>[1] 0.2866411
+
+#If scaled, then the difference in distances is much smaller, 1.47782
+#However, age continues having a larger distance, i.e., from E1 to E2, 
+#age represents the largest perturbation. However, this might be dampen 
+#by the regression coefficient that related age and yoe to the accuracy of tests
 
 #Write back is_student to file or extra file to be merged later.
 

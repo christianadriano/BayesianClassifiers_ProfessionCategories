@@ -215,6 +215,23 @@ t.test(df_merged_E1[df_merged_E1$response==1,]$years_programming,
 #Students and non-students are statistically significant distinct with
 #respect to distribution of their age and years_programming
 
+#------------------------
+# Which of these pairs of distributions are more distinct?
+# To answer that, I compute the Wasserstein distance metric \cite{}
+install.packages("transport")
+library(transport)
+wasserstein1d(df_merged_E1[df_merged_E1$response==1,]$age,
+              df_merged_E1[df_merged_E1$response==0,]$age,
+)
+#>[1] 10.77676
+wasserstein1d(df_merged_E1[df_merged_E1$response==1,]$years_programming,
+              df_merged_E1[df_merged_E1$response==0,]$years_programming,
+)
+#[1] 1.759595
+
+#Age distributions are 6 times more distant than years_programming. 
+
+
 #Write back is_student to file or extra file to be merged later.
 
 
@@ -222,7 +239,7 @@ t.test(df_merged_E1[df_merged_E1$response==1,]$years_programming,
 # WITHOUT CROSS-VALIDATION
 
 #TASK
-#Creaete task (mlr3 model)
+#Create task (mlr3 model)
 task <- TaskClassif$new(df_selected, 
                         id = "worker_id", 
                         target = "is_student")

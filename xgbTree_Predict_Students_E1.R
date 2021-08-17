@@ -164,7 +164,7 @@ ggplot2::autoplot(prediction)
 # Apply model to label E1
 #Load consent data from E1
 source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E1.R")
-df_consent_E1 <- load_consent_create_indexes()
+df_consent_E1 <- load_consent_create_indexes(load_is_student=0)
 df_selected_E1 <- df_consent_E1 %>% select(years_programming,age,is_student)
 
 #create column with student and non-student

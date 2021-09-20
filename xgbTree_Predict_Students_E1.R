@@ -165,10 +165,10 @@ ggplot2::autoplot(prediction)
 #Load consent data from E1
 source("C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data_loaders//load_consent_create_indexes_E1.R")
 df_consent_E1 <- load_consent_create_indexes(load_is_student=0)
-df_selected_E1 <- df_consent_E1 %>% select(years_programming,age,is_student)
+df_selected_E1 <- df_consent_E1 %>% select(years_programming,age)
 
 #create column with student and non-student
-df_selected_E1$is_student = 0
+df_selected_E1$is_student <-  0
 df_selected_E1$is_student <-  factor(df_selected_E1$is_student,levels=c(1,0))
 df_selected_E1$is_student <- as.factor(df_selected_E1$is_student)
 
@@ -177,6 +177,8 @@ df_selected_E1$years_programming <- as.double(format(df_selected_E1$years_progra
 #Filter out workers who did not provide age or years of programming
 df_selected_E1 <-  df_selected_E1[!is.na(df_selected_E1$age) & !is.na(df_selected_E1$years_programming),]
 
+#take only unique pairs or age and years of programming to be used as predictors (features)
+df_selected_E1 <- unique(df_selected_E1)
 
 task_test <- TaskClassif$new(df_selected_E1, 
                         id = "test", 
@@ -190,9 +192,10 @@ ggplot2::autoplot(prediction_E1)
 #MERGE BACK IS_Student prediction RESULTS.
 
 df_features <- data_frame(task_test$data())
-df_response <- data_frame(response)
+df_response <- data_frame(prediction_E1$response)
 
 df_merged_E1 <- data.frame(cbind(df_features,df_response))
+colnames(df_merged_E1)[4] <- c("response")
 
 #df_merged_E1 <- 
 #dplyr::left_join(df_selected_E1,prediction_E1,by =c("age","years_programming"), copy=FALSE)
@@ -257,6 +260,10 @@ df_final_merged_E1 <- dplyr::left_join(df_consent_E1,df_merged_E1,
                                     by=c("age"="age","years_programming"="years_programming"),
                                     copy=FALSE,keep=FALSE)
 
+
+df_selected_merged_E1 <- dplyr::left_join(df_selected_E1,df_merged_E1,
+                                       by=c("age"="age","years_programming"="years_programming"),
+                                       copy=FALSE,keep=FALSE)
 
 df_final_merged_E1 <- df_final_merged_E1 %>% select(worker_id,years_programming,age,response)
 colnames(df_final_merged_E1) <- c("worker_id", "years_programming","age","is_student")

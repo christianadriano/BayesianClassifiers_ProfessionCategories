@@ -260,17 +260,12 @@ df_final_merged_E1 <- dplyr::left_join(df_consent_E1,df_merged_E1,
                                     by=c("age"="age","years_programming"="years_programming"),
                                     copy=FALSE,keep=FALSE)
 
-
-df_selected_merged_E1 <- dplyr::left_join(df_selected_E1,df_merged_E1,
-                                       by=c("age"="age","years_programming"="years_programming"),
-                                       copy=FALSE,keep=FALSE)
-
 df_final_merged_E1 <- df_final_merged_E1 %>% select(worker_id,years_programming,age,response)
 colnames(df_final_merged_E1) <- c("worker_id", "years_programming","age","is_student")
 # Write back to file or extra file to be merged later with consent data
 write.csv(df_final_merged_E1,
 "C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data//is_student_E1.csv")
-  
+
 #---------------------------------------
 # WITHOUT CROSS-VALIDATION
 

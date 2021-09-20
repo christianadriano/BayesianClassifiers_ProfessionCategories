@@ -197,63 +197,6 @@ df_response <- data_frame(prediction_E1$response)
 df_merged_E1 <- data.frame(cbind(df_features,df_response))
 colnames(df_merged_E1)[4] <- c("response")
 
-#df_merged_E1 <- 
-#dplyr::left_join(df_selected_E1,prediction_E1,by =c("age","years_programming"), copy=FALSE)
-
-#HISTOGRAM PLOTS (make better using ggplot density)
-hist(df_merged_E1[df_merged_E1$response==1,]$age)
-hist(df_merged_E1[df_merged_E1$response==0,]$age)
-
-hist(df_merged_E1[df_merged_E1$response==1,]$years_programming)
-hist(df_merged_E1[df_merged_E1$response==0,]$years_programming)
-
-## RUN STATISTICAL TEST
-t.test(df_merged_E1[df_merged_E1$response==1,]$age,
-       df_merged_E1[df_merged_E1$response==0,]$age,
-       )
-#p-value < 2.2e-16
-
-t.test(df_merged_E1[df_merged_E1$response==1,]$years_programming,
-       df_merged_E1[df_merged_E1$response==0,]$years_programming,
-)
-#p-value = 1.512e-06
-
-#Students and non-students are statistically significant distinct with
-#respect to distribution of their age and years_programming
-
-#------------------------
-# Which of these pairs of distributions are more distinct?
-# To answer that, I compute the Wasserstein distance metric \cite{}
-#install.packages("transport")
-library(transport)
-wasserstein1d(df_merged_E1[df_merged_E1$response==1,]$age,
-              df_merged_E1[df_merged_E1$response==0,]$age,
-)
-#>[1] 10.77676
-wasserstein1d(df_merged_E1[df_merged_E1$response==1,]$years_programming,
-              df_merged_E1[df_merged_E1$response==0,]$years_programming,
-)
-#[1] 1.759595
-
-#Age distributions are 6 times more distant than years_programming. 
-
-##
-#Computing the Wasserstein metric with the distributions scaled.
-wasserstein1d(scale(df_merged_E1[df_merged_E1$response==1,]$age),
-              scale(df_merged_E1[df_merged_E1$response==0,]$age),
-)
-#[1] 0.4236039
-
-wasserstein1d(scale(df_merged_E1[df_merged_E1$response==1,]$years_programming),
-              scale(df_merged_E1[df_merged_E1$response==0,]$years_programming),
-)
-#>[1] 0.2866411
-
-#If scaled, then the difference in distances is much smaller, 1.47782
-#However, age continues having a larger distance, i.e., from E1 to E2, 
-#age represents the largest perturbation. However, this might be dampen 
-#by the regression coefficient that related age and yoe to the accuracy of tests
-
 #-------------------------------------------
 # Merge with worker_id
 df_final_merged_E1 <- dplyr::left_join(df_consent_E1,df_merged_E1,
@@ -265,6 +208,70 @@ colnames(df_final_merged_E1) <- c("worker_id", "years_programming","age","is_stu
 # Write back to file or extra file to be merged later with consent data
 write.csv(df_final_merged_E1,
 "C://Users//Christian//Documents//GitHub//CausalModel_FaultUnderstanding//data//is_student_E1.csv")
+
+#-----------------------------------------------------------
+#COMPARE STUDENTS AND NON_STUDENTS
+
+#HISTOGRAM PLOTS (make better using ggplot density)
+hist(df_final_merged_E1[df_final_merged_E1$is_student==1,]$age)
+hist(df_final_merged_E1[df_final_merged_E1$is_student==0,]$age)
+
+hist(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming)
+hist(df_final_merged_E1[df_final_merged_E1$is_student==0,]$years_programming)
+
+## RUN STATISTICAL TEST
+t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$age,
+       df_final_merged_E1[df_final_merged_E1$is_student==0,]$age,
+)
+#p-value < 2.2e-16
+
+t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
+       df_final_merged_E1[df_final_merged_E1$is_student==0,]$years_programming,
+)
+#p-value = 1.512e-06
+
+#Students and non-students are statistically significant distinct with
+#respect to distribution of their age and years_programming
+
+#------------------------
+# Which of these pairs of distributions are more distinct?
+# To answer that, I compute the Wasserstein distance metric \cite{}
+#install.packages("transport")
+library(transport)
+#Remove NA rows
+df_merge <- df_final_merged_E1[!is.na(df_final_merged_E1$age) & !is.na(df_final_merged_E1$years_programming), ]
+
+wasserstein1d(df_merge[df_merge$is_student==1,]$age,
+              df_merge[df_merge$is_student==0,]$age,
+)
+#>[1] 10.77676
+wasserstein1d(df_merge[df_merge$is_student==1,]$years_programming,
+              df_merge[df_merge$is_student==0,]$years_programming,
+)
+#[1] 1.759595
+
+#Age distributions are 6 times more distant than years_programming. 
+
+##
+#Computing the Wasserstein metric with the distributions scaled.
+wasserstein1d(scale(df_merge[df_merge$is_student==1,]$age),
+              scale(df_merge[df_merge$is_student==0,]$age),
+)
+#[1] 0.4236039
+
+wasserstein1d(scale(df_merge[df_merge$is_student==1,]$years_programming),
+              scale(df_merge[df_merge$is_student==0,]$years_programming),
+)
+#>[1] 0.2866411
+
+#If scaled, then the difference in distances is much smaller, 1.47782
+#However, age continues having a larger distance, i.e., from E1 to E2, 
+#age represents the largest perturbation. However, this might be dampen 
+#by the regression coefficient that related age and yoe to the accuracy of tests
+
+
+
+
 
 #---------------------------------------
 # WITHOUT CROSS-VALIDATION

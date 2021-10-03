@@ -237,21 +237,25 @@ t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
 # Compute MMD
 # create data
 #KMMD
-install.packages("kmmd")
+install.packages("kernlab")
+library(kernlab)
 #https://rdrr.io/cran/kernlab/man/kmmd.html
+x <- matrix(runif(300),100)
+y <- matrix(runif(300)+1,100)
+mmdo <- kmmd(x,y)
+mmdo
 
+#-----------------------
+#Other MMD Packages
 #EasyMMD
 devtools::install_github("AnthonyEbert/EasyMMD")
-
 #MMDCopula
 install.packages("MMDCopula")
 #https://cran.r-project.org/web/packages/MMDCopula/MMDCopula.pdf
 library(MMDCopula)
-x <- matrix(runif(300),100)
-y <- matrix(runif(300)+1,100)
-mmdo <- mmd(x,y)
-
 mmdo <- BiCopConfIntMMD(x, y, family=1)
+#---------------------------------------------
+
 
 
 

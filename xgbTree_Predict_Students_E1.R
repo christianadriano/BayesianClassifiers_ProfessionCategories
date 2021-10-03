@@ -233,6 +233,28 @@ t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
 #Students and non-students are statistically significant distinct with
 #respect to distribution of their age and years_programming
 
+#-----------------------
+# Compute MMD
+# create data
+#KMMD
+install.packages("kmmd")
+#https://rdrr.io/cran/kernlab/man/kmmd.html
+
+#EasyMMD
+devtools::install_github("AnthonyEbert/EasyMMD")
+
+#MMDCopula
+install.packages("MMDCopula")
+#https://cran.r-project.org/web/packages/MMDCopula/MMDCopula.pdf
+library(MMDCopula)
+x <- matrix(runif(300),100)
+y <- matrix(runif(300)+1,100)
+mmdo <- mmd(x,y)
+
+mmdo <- BiCopConfIntMMD(x, y, family=1)
+
+
+
 #------------------------
 # Which of these pairs of distributions are more distinct?
 # To answer that, I compute the Wasserstein distance metric \cite{}

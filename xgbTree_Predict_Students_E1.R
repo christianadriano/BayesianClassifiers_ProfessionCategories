@@ -132,7 +132,7 @@ auto_tuner = AutoTuner$new(learner, resampling, measure, terminator, tuner, sear
 #Using cross-validation in the outerloop
 outer_resampling = rsmp("cv", folds = 10)
 
-rr = resample(task, at, outer_resampling, store_models = TRUE)
+rr = resample(task, auto_tuner, outer_resampling, store_models = TRUE)
 
 extract_inner_tuning_results(rr)
 #       cp learner_param_vals  x_domain classif.ce
@@ -149,12 +149,12 @@ rr$score()
 # 2:            cv         2 <PredictionClassif[19]>  0.1610738
 # 3:            cv         3 <PredictionClassif[19]>  0.1895973
 
-#Larger error in the oute resampling sugges that
+#Larger error in the outer resampling suggests that
 #the models with the optimized hyperparameters are overfitting the data.
 
 #hence, use the aggregate value of the outer resampling
 rr$aggregate()
-#classif.ce  = 0.1823266 
+#classif.ce  = 0.1873674  
 
 #FINAL MODEL produced by the auto-tuner
 model <- auto_tuner$train(task)
@@ -231,7 +231,7 @@ t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$age,
 t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
        df_final_merged_E1[df_final_merged_E1$is_student==0,]$years_programming,
 )
-#p-value = 1.512e-06
+#p-value = 1.226e-07
 
 #Students and non-students are statistically significant distinct with
 #respect to distribution of their age and years_programming

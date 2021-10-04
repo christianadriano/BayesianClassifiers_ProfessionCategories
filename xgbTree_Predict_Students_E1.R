@@ -26,9 +26,12 @@ age, years_programming = (0.1868433,)
 
 "
 
-#install.packages("mlr3")
-#install.packages("mlr3verse")
-#install.packages("data.table")
+install.packages("mlr3")
+install.packages("mlr3verse")
+install.packages("data.table")
+install.packages("tibble")
+install.packages("ggplot2")
+install.packages("dplyr")
 
 library(data.table)
 library(mlr3)
@@ -240,20 +243,29 @@ t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
 install.packages("kernlab")
 library(kernlab)
 #https://rdrr.io/cran/kernlab/man/kmmd.html
-x <- matrix(runif(300),100)
-y <- matrix(runif(300)+1,100)
-mmdo <- kmmd(x,y)
-mmdo
+#x <- matrix(runif(300),100)
+#y <- matrix(runif(300)+1,100)
+#mmdo <- kmmd(x,y)
+#mmdo
+
+kmmd(df_final_merged_E1[df_final_merged_E1$is_student==1,]$age,
+       df_final_merged_E1[df_final_merged_E1$is_student==0,]$age,
+)
+
+kmmd(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
+       df_final_merged_E1[df_final_merged_E1$is_student==0,]$years_programming,
+)
+
 
 #-----------------------
 #Other MMD Packages
 #EasyMMD
-devtools::install_github("AnthonyEbert/EasyMMD")
+#devtools::install_github("AnthonyEbert/EasyMMD")
 #MMDCopula
-install.packages("MMDCopula")
+#install.packages("MMDCopula")
 #https://cran.r-project.org/web/packages/MMDCopula/MMDCopula.pdf
-library(MMDCopula)
-mmdo <- BiCopConfIntMMD(x, y, family=1)
+#library(MMDCopula)
+#mmdo <- BiCopConfIntMMD(x, y, family=1)
 #---------------------------------------------
 
 

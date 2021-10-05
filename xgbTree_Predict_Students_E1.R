@@ -26,19 +26,18 @@ age, years_programming = (0.1868433,)
 
 "
 
-install.packages("mlr3")
-install.packages("mlr3verse")
-install.packages("data.table")
-install.packages("tibble")
-install.packages("ggplot2")
-install.packages("dplyr")
+# install.packages("mlr3")
+# install.packages("mlr3verse")
+# install.packages("data.table")
+# install.packages("tibble")
+# install.packages("ggplot2")
+# install.packages("dplyr")
 
 library(data.table)
 library(mlr3)
 library(mlr3verse) #https://mlr3.mlr-org.com/
 library(ggplot2)
-
-library(xgboost)
+#library(xgboost)
 library(dplyr)
 
 #------------------------------------
@@ -63,6 +62,7 @@ df_selected <- df_consent %>% select(years_programming, age,is_student)
 #Cross-validation
 #Used only age and years of programming as features
 
+learner = lrn("classif.rpart")
 #Create TasK (mlr3 model)
 task <- TaskClassif$new(df_selected, 
                         id = "training", 
@@ -154,7 +154,7 @@ rr$score()
 
 #hence, use the aggregate value of the outer resampling
 rr$aggregate()
-#classif.ce  = 0.1873674  
+#classif.ce  =  0.1940682  
 
 #FINAL MODEL produced by the auto-tuner
 model <- auto_tuner$train(task)

@@ -171,14 +171,14 @@ df_consent_E1 <- load_consent_create_indexes(load_is_student=0)
 df_selected_E1 <- df_consent_E1 %>% select(years_programming,age)
 
 #create column with student and non-student
-df_selected_E1$is_student <-  0
+df_selected_E1$is_student <-  NA
 df_selected_E1$is_student <-  factor(df_selected_E1$is_student,levels=c(1,0))
 df_selected_E1$is_student <- as.factor(df_selected_E1$is_student)
 
-df_selected_E1$years_programming <- as.double(format(df_selected_E1$years_programming,nsmall=1))
-
 #Filter out workers who did not provide age or years of programming
 df_selected_E1 <-  df_selected_E1[!is.na(df_selected_E1$age) & !is.na(df_selected_E1$years_programming),]
+
+df_selected_E1$years_programming <- as.double(format(df_selected_E1$years_programming,nsmall=1))
 
 #take only unique pairs or age and years of programming to be used as predictors (features)
 df_selected_E1 <- unique(df_selected_E1)
@@ -231,7 +231,7 @@ t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$age,
 t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
        df_final_merged_E1[df_final_merged_E1$is_student==0,]$years_programming,
 )
-#p-value = 1.226e-07
+#p-value = 1.512e-06
 
 #Students and non-students are statistically significant distinct with
 #respect to distribution of their age and years_programming
@@ -240,7 +240,7 @@ t.test(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
 # Compute MMD
 # create data
 #KMMD
-install.packages("kernlab")
+#install.packages("kernlab")
 library(kernlab)
 #https://rdrr.io/cran/kernlab/man/kmmd.html
 #x <- matrix(runif(300),100)
@@ -248,14 +248,33 @@ library(kernlab)
 #mmdo <- kmmd(x,y)
 #mmdo
 
-kmmd(df_final_merged_E1[df_final_merged_E1$is_student==1,]$age,
-       df_final_merged_E1[df_final_merged_E1$is_student==0,]$age,
-)
+x = matrix(df_final_merged_E1[df_final_merged_E1$is_student==1 & !is.na(df_final_merged_E1$age),]$age)
+y = matrix(df_final_merged_E1[df_final_merged_E1$is_student==0 & !is.na(df_final_merged_E1$age),]$age)
+kmmd(x,y)
 
 kmmd(df_final_merged_E1[df_final_merged_E1$is_student==1,]$years_programming,
        df_final_merged_E1[df_final_merged_E1$is_student==0,]$years_programming,
 )
+"Using automatic sigma estimation (sigest) for RBF or laplace kernel 
+Kernel Maximum Mean Discrepancy object of class kmmd
+Gaussian Radial Basis kernel function. 
+Hyperparameter : sigma =  0.0277777777777778 
+H0 Hypothesis rejected :  TRUE
+Rademacher bound :  0.622411274175865
+1st and 3rd order MMD Statistics :  0.927544779284223 0.855746842147032
+"
 
+x = matrix(df_final_merged_E1[df_final_merged_E1$is_student==1 & !is.na(df_final_merged_E1$years_programming),]$years_programming)
+y = matrix(df_final_merged_E1[df_final_merged_E1$is_student==0 & !is.na(df_final_merged_E1$years_programming),]$years_programming)
+kmmd(x,y)
+"Using automatic sigma estimation (sigest) for RBF or laplace kernel 
+Kernel Maximum Mean Discrepancy object of class kmmd
+Gaussian Radial Basis kernel function. 
+Hyperparameter : sigma =  0.111111111111111 
+H0 Hypothesis rejected :  FALSE
+Rademacher bound :  0.622411274175865
+1st and 3rd order MMD Statistics :  0.165812108356876 -0.00155321083124399
+" 
 
 #-----------------------
 #Other MMD Packages
